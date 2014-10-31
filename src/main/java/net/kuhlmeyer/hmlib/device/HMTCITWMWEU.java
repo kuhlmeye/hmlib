@@ -1,71 +1,37 @@
 package net.kuhlmeyer.hmlib.device;
 
-import net.kuhlmeyer.hat.event.Event;
-import net.kuhlmeyer.hat.event.EventBus;
-import net.kuhlmeyer.hat.event.EventType;
-import net.kuhlmeyer.hat.hm.HMEvent;
-import net.kuhlmeyer.hat.hm.HMResponse;
-import net.kuhlmeyer.hat.job.HomematicAdapter;
-import net.kuhlmeyer.hat.persist.TemperatureData;
-import net.kuhlmeyer.hat.persist.TemperatureSelected;
-import net.kuhlmeyer.hat.service.TemperatureService;
+import net.kuhlmeyer.hmlib.event.TemperatureChangedEvent;
+import net.kuhlmeyer.hmlib.event.TemperatureReceivedEvent;
+import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
+import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 
 /**
  * HM-TC-IT-WM-W-EU Temperature Sensor
  *
+ *
+ * Notification-Payload = B4865A26047600000094DC2A
+ *
+ * B4865A260476000000 94DC 2A => 18,5°C SetTemp =>  22°C Temp, 42%
+ *                    ---- --
+ *                      A   B
+ * Selected Temperature = ((A >> 10) & 0x3f) / 2.0
+ * Current Temperature  = ((A & 0x3ff) / 10.0
+ * Current Humidity     = B
+ *
  * @author christof
  */
-public class HMTCITWMWEU extends HMDevice implements TemperatureSensor {
+public class HMTCITWMWEU extends AbstractHMDevice {
 
     private static final Logger LOG = Logger.getLogger(HMTCITWMWEU.class);
 
-    public static final String TEMPERATURE = "Temperatur";
-    public static final String HUMIDITY = "Feuchtigkeit";
-    public static final String LAST_UPDATE = "Letzte Aktualisierung";
+    private Double humidity;
+    private Double temperature;
+    private Date lastUpdate;
 
 
-    @Autowired private TemperatureService temperatureService;
-    @Autowired private EventBus eventBus;
-    @Autowired private HomematicAdapter homematicAdapter;
-
-
-    @Override
-    public String getName() {
-        return "Temperatur";
-    }
-
-    @Override
-    public String[] getAvailableTypes() {
-        return new String[]{TEMPERATURE, HUMIDITY, LAST_UPDATE};
-    }
-
-    @Override
-    public Object get(String type, Object... params) {
-        TemperatureData data = temperatureService.findLatestData(getId());
-        if (data == null) {
-            return null;
-        }
-        if (TEMPERATURE.equals(type)) {
-            return data.getTemperature();
-        } else if (HUMIDITY.equals(type)) {
-            return data.getHumidity();
-        } else if (LAST_UPDATE.equals(type)) {
-            return data.getTimestamp();
-        }
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public DeviceType getType() {
-        return DeviceType.TemperaturFuehler;
-    }
-
-    @Override
     public String getFormattedHumidity() {
         Double humidity = getHumidity();
         if (humidity == null) {
@@ -75,7 +41,6 @@ public class HMTCITWMWEU extends HMDevice implements TemperatureSensor {
         }
     }
 
-    @Override
     public String getFormattedTemperature() {
         Double temperature = getTemperature();
         if (temperature == null) {
@@ -85,37 +50,25 @@ public class HMTCITWMWEU extends HMDevice implements TemperatureSensor {
         }
     }
 
-    @Override
     public Double getHumidity() {
-        return (Double) get(HUMIDITY);
+        return humidity;
     }
 
-    @Override
     public Double getTemperature() {
-        return (Double) get(TEMPERATURE);
+        return temperature;
     }
 
-    @Override
     public Date getLastUpdateTime() {
-        return (Date) get(LAST_UPDATE);
+        return lastUpdate;
     }
 
     @Override
-    public boolean responseReceived(HMResponse data) {
+    public boolean responseReceived(HMDeviceResponse data) {
         return true;
     }
 
     @Override
-    public boolean eventReceived(HMEvent data) {
-        // Payload = B4865A26047600000094DC2A
-
-        // B4865A260476000000 94DC 2A => 18,5°C SetTemp =>  22°C Temp, 42%
-        //                    ---- --
-        //                      A   B
-        // Selected Temperature = ((A >> 10) & 0x3f) / 2.0
-        // Current Temperature  = ((A & 0x3ff) / 10.0
-        // Current Humidity     = B
-
+    public boolean eventReceived(HMDeviceNotification data) {
         String payload = data.getPayload();
 
         if (payload.length() == 24) {
@@ -129,34 +82,17 @@ public class HMTCITWMWEU extends HMDevice implements TemperatureSensor {
 
                 LOG.debug(String.format("Received temperature for %s: Selected: %f, Current: %f, Humidity: %f", getId(), selTemp, temperature, humidity));
 
+                Double lastTemperature = this.temperature;
+                Double lastHumidity = this.humidity;
+                Date prevLastUpdate = this.lastUpdate;
 
-                TemperatureData latestData = temperatureService.findLatestData(getId());
-
-                TemperatureData temperatureData = new TemperatureData();
-                temperatureData.setTimestamp(new Date());
-                temperatureData.setHumidity(humidity);
-                temperatureData.setTemperature(temperature);
-                temperatureData.setLocation(getId());
-                temperatureService.create(temperatureData);
-
-                TemperatureSelected temperatureSelected = temperatureService.findSelectedTemperatureByLocation(getId());
-                LOG.debug("Selected temperature: " + temperatureSelected);
-                if (temperatureSelected == null || temperatureSelected != null && !temperatureSelected.getTemperature().equals(selTemp)) {
-                    LOG.debug("Updating room temperature for: " + getId());
-                    temperatureService.updateRoomTemperature(getId(), selTemp);
+                getLanAdapter().fireEvent(new TemperatureReceivedEvent(this));
+                if(lastTemperature == null || lastHumidity == null || !lastTemperature.equals(temperature) || !lastHumidity.equals(humidity)) {
+                    getLanAdapter().fireEvent(new TemperatureChangedEvent(this, lastTemperature, lastHumidity, prevLastUpdate));
                 }
-
-                double latestTemperature = latestData == null ? 0d : latestData.getTemperature();
-                eventBus.fireEvent(new Event(EventType.TemperatureChange, getId(), getHmId(), latestTemperature, temperature), String.format("Temperature at %s changed from %2.1f to %2.1f", getId(), latestTemperature, temperature, this), false);
             }
         }
         return true;
-
-    }
-
-    @PostConstruct
-    public void init() {
-        homematicAdapter.registerHMDevice(this);
     }
 }
 

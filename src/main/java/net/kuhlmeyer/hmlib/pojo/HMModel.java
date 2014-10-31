@@ -113,7 +113,7 @@ public enum HMModel {
 	Schueco_263_144("0092"),
 	Schueco_263_158("0093"),
 	Schueco_263_157("0094"),
-	;
+    ;
 	
 	private String model;
 	

@@ -2,9 +2,10 @@ package net.kuhlmeyer.hmlib.device;
 
 
 import net.kuhlmeyer.hmlib.HMLanAdapter;
-import net.kuhlmeyer.hmlib.event.SwitchChangedEvent;
-import net.kuhlmeyer.hmlib.pojo.HMEvent;
-import net.kuhlmeyer.hmlib.pojo.HMResponse;
+import net.kuhlmeyer.hmlib.event.HomematicEvent;
+import net.kuhlmeyer.hmlib.event.SwitchEvent;
+import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
+import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
 
 /*
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
  *
  *  00800216B341123ABC0101C8004C
  */
-public abstract class AbstractHMSwitch extends HMDevice {
+public abstract class AbstractHMSwitch extends AbstractHMDevice {
 
     private static final Logger LOG = Logger.getLogger(AbstractHMSwitch.class);
 	
@@ -34,7 +35,7 @@ public abstract class AbstractHMSwitch extends HMDevice {
 	private int channel;
     private State state = State.Unknown;
     
-	public void init(String deviceId, String name, int channel, HMLanAdapter hmAdapter) {
+	public void AbstractHMSwitch(String deviceId, String name, int channel, HMLanAdapter hmAdapter) {
 		setId(deviceId);
 		setName(name);
 		this.hmAdapter = hmAdapter;
@@ -79,7 +80,10 @@ public abstract class AbstractHMSwitch extends HMDevice {
 
 
     public State queryState() {
-        sendCommand(String.format("A001%s%s%02X0E", hmAdapter.getStatus().getOwner(), getHmId(), channel));
+        if(sendCommand(String.format("A001%s%s%02X0E", hmAdapter.getStatus().getOwner(), getHmId(), channel))) {
+            return getState();
+        }
+        return State.Unknown;
     }
 
 	public State switchOn() {
@@ -112,11 +116,11 @@ public abstract class AbstractHMSwitch extends HMDevice {
         return getState();
     }
 
-    public boolean eventReceived(HMEvent data) {
+    public boolean eventReceived(HMDeviceNotification data) {
         return handleData(data.getStatus(), data.getPayload());
     }
 
-    public boolean responseReceived(HMResponse data) {
+    public boolean responseReceived(HMDeviceResponse data) {
     	return handleData(data.getStatus(), data.getPayload());
     }    
 
@@ -138,13 +142,13 @@ public abstract class AbstractHMSwitch extends HMDevice {
                 state = State.On;
                 if(oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s on.", getName()));
-                    hmAdapter.fireEvent(new SwitchChangedEvent(this));
+                    hmAdapter.fireEvent(new SwitchEvent(this));
                 }
             } else if("00".equals(value)) {
                 state = State.Off;
                 if(oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s off.", getName()));
-                    hmAdapter.fireEvent(new SwitchChangedEvent(this));
+                    hmAdapter.fireEvent(new SwitchEvent(this));
                 }
             } else {
                 state = State.Unknown;

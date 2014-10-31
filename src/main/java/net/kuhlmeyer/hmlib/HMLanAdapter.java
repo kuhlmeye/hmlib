@@ -1,14 +1,12 @@
 package net.kuhlmeyer.hmlib;
 
-import net.kuhlmeyer.hat.Configuration;
-import net.kuhlmeyer.hat.devices.HMDevice;
-import net.kuhlmeyer.hmlib.event.SwitchChangedEvent;
-import net.kuhlmeyer.hmlib.pojo.HMDeviceInfo;
-import net.kuhlmeyer.hmlib.pojo.HMLanGWStatus;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import net.kuhlmeyer.hmlib.device.AbstractHMDevice;
+import net.kuhlmeyer.hmlib.event.HomematicEvent;
+import net.kuhlmeyer.hmlib.event.HomematicEventListener;
+import net.kuhlmeyer.hmlib.pojo.*;
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -23,20 +21,17 @@ public class HMLanAdapter {
 	private BufferedWriter writer;
 	private HMLanGWStatus status;
 
-	private List<HMDevice> hmDevices = new ArrayList<HMDevice>();
+	private List<AbstractHMDevice> hmDevices = new ArrayList<AbstractHMDevice>();
 	private int cmdCounter = 0;
 	
 	private Map<Integer, HMDeviceInfo> devInfoMap = new HashMap<Integer, HMDeviceInfo>();
+    private String ip;
+    private Integer port;
+    private AbstractCollection<HomematicEventListener> listeners = new ArrayList<>();
 
-	@PostConstruct
-	public void hmAdapter() throws SocketException, IOException {
+    public void startInBackground(final String ip, final Integer port) throws SocketException, IOException {
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				startHomematicAdapter();
-			}
-		}, "HM-Adapter").start();
+		new Thread(() -> startHomematicAdapter(ip, port), "HM-Adapter").start();
 
 		new Timer("HM-AliveTimer").scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -45,16 +40,13 @@ public class HMLanAdapter {
 			}
 		}, 10 * 1000, 10000);
 
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					hmSocket.close();
-				} catch (IOException e) {
-					LOG.error("Error closing homematic socket", e);
-				}
-			}
-		}));
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                hmSocket.close();
+            } catch (IOException e) {
+                LOG.error("Error closing homematic socket", e);
+            }
+        }));
 	}
 
 	public HMLanGWStatus getStatus() {
@@ -62,8 +54,6 @@ public class HMLanAdapter {
 	}
 
 	private void openPort() throws IOException {
-		String ip = Configuration.getHmAdapterIp();
-		Integer port = Configuration.getHmAdapterPort();
 		LOG.debug("Opening port: " + ip + ":" + port);
 
 		hmSocket = new Socket(ip, port);
@@ -72,7 +62,6 @@ public class HMLanAdapter {
 		writer = new BufferedWriter(new OutputStreamWriter(hmSocket.getOutputStream()));
 
 		writer.write("A123ABC\n");
-
 	}
 
 	private void closePort() throws IOException {
@@ -82,7 +71,9 @@ public class HMLanAdapter {
         }
 	}
 
-	private void startHomematicAdapter() {
+	private void startHomematicAdapter(String ip, Integer port) {
+        this.ip = ip;
+        this.port = port;
         while(true) {
             try {
 
@@ -101,11 +92,11 @@ public class HMLanAdapter {
                         status = parseHMLanGWStatus(line);
                         LOG.trace("Status received: " + status);
                     } else if (line.startsWith("E")) {
-                        HMEvent event = parseEvent(line);
+                        HMDeviceNotification event = parseEvent(line);
                         LOG.debug("Event received: " + event);
 
                         boolean processed = false;
-                        for (HMDevice hmDevice : hmDevices) {
+                        for (AbstractHMDevice hmDevice : hmDevices) {
                             if (hmDevice.getHmId().equals(event.getSource())) {
                                 processed |= hmDevice.eventReceived(event);
                             }
@@ -138,11 +129,11 @@ public class HMLanAdapter {
 
                         }
                     } else if (line.startsWith("R")) {
-                        HMResponse response = parseResponse(line);
+                        HMDeviceResponse response = parseResponse(line);
                         LOG.debug("Response received: " + response);
 
                         boolean processed = false;
-                        for (HMDevice hmDevice : hmDevices) {
+                        for (AbstractHMDevice hmDevice : hmDevices) {
                             if (hmDevice.getHmId().equals(response.getSource())) {
                                 processed |= hmDevice.responseReceived(response);
                             }
@@ -284,12 +275,12 @@ public class HMLanAdapter {
 	 * <li>Payload</li>
 	 * <ol>
 	 */
-	private HMEvent parseEvent(String line) {
+	private HMDeviceNotification parseEvent(String line) {
 		if (line.startsWith("E")) {
 
 			String[] array = line.split(",");
 			if (array.length == 6) {
-				HMEvent event = new HMEvent();
+				HMDeviceNotification event = new HMDeviceNotification();
 				event.setSource(array[0].substring(1));
 				event.setStatus(array[1]);
 				event.setUptime(parseUptime(array[2]));
@@ -314,11 +305,11 @@ public class HMLanAdapter {
 	 * <li>Payload</li>
 	 * <ol>
 	 */
-	public HMResponse parseResponse(String line) {
+	public HMDeviceResponse parseResponse(String line) {
 		if (line.startsWith("R")) {
 			String[] array = line.split(",");
 			if (array.length == 6) {
-				HMResponse response = new HMResponse();
+				HMDeviceResponse response = new HMDeviceResponse();
 				response.setSource(array[5].substring(6, 12));
 				response.setStatus(array[1]);
 				response.setUptime(parseUptime(array[2]));
@@ -367,12 +358,20 @@ public class HMLanAdapter {
 	//              E1FD2CA,0000,1492221C,FF,FFAD,0484001FD2CA0000001C00094B45513032353432343010020100 for 1FD2CA
 	//              R7C085F96,0001,149A5DB0,FF,FFBC,058002234768123ABC00 for KEQ0706612
 	
-	public void registerHMDevice(HMDevice hmDevice) {
+	public void registerHMDevice(AbstractHMDevice hmDevice) {
 		hmDevices.add(hmDevice);
+        hmDevice.init(this);
 	}
 
-    public void fireEvent(SwitchChangedEvent switchChangedEvent) {
-       // TODO
-        TODO
+    public void addHomematicEventListener(HomematicEventListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeHomematicEventListener(HomematicEventListener listener) {
+        listeners.remove(listener);
+    }
+
+    public void fireEvent(final HomematicEvent event) {
+       listeners.stream().forEach(listener -> listener.eventOcurred(event));
     }
 }

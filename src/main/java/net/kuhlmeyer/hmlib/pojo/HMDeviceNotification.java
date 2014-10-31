@@ -1,6 +1,6 @@
 package net.kuhlmeyer.hmlib.pojo;
 
-public class HMEvent {
+public class HMDeviceNotification {
 
 	private String source;
 	private String status;

@@ -1,7 +1,7 @@
 package net.kuhlmeyer.hmlib.pojo;
 
 
-public class HMResponse {
+public class HMDeviceResponse {
     
     private String source;
     

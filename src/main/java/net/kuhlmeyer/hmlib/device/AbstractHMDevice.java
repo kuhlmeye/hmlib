@@ -1,14 +1,16 @@
 package net.kuhlmeyer.hmlib.device;
 
-import net.kuhlmeyer.hmlib.pojo.HMEvent;
-import net.kuhlmeyer.hmlib.pojo.HMResponse;
+import net.kuhlmeyer.hmlib.HMLanAdapter;
+import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
+import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 
-public abstract class HMDevice {
+public abstract class AbstractHMDevice {
 	
 	private String id;
     private String hmId;
     private String hmCode;
 	private String name;
+    private HMLanAdapter lanAdapter;
 
 	
   	public String getId() {
@@ -43,7 +45,15 @@ public abstract class HMDevice {
 		this.hmId = hmId;
 	}
     
-	public abstract boolean responseReceived(HMResponse data);
+	public abstract boolean responseReceived(HMDeviceResponse data);
 
-	public abstract boolean eventReceived(HMEvent data);
+	public abstract boolean eventReceived(HMDeviceNotification data);
+
+    public void init(HMLanAdapter hmLanAdapter) {
+        this.lanAdapter = hmLanAdapter;
+    }
+
+    public HMLanAdapter getLanAdapter() {
+        return lanAdapter;
+    }
 }
