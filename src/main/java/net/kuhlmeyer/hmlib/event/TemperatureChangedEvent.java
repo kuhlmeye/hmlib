@@ -12,3 +12,5 @@ public class TemperatureChangedEvent implements HomematicEvent {
     public TemperatureChangedEvent(HMTCITWMWEU hmtcitwmweu, Double lastTemperature, Double lastHumidity, Date prevLastUpdate) {
     }
 }
+
+
