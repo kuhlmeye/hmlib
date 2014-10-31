@@ -86,6 +86,10 @@ public class HMTCITWMWEU extends AbstractHMDevice {
                 Double lastHumidity = this.humidity;
                 Date prevLastUpdate = this.lastUpdate;
 
+                this.temperature = temperature;
+                this.humidity = humidity;
+                this.lastUpdate = new Date();
+
                 getLanAdapter().fireEvent(new TemperatureReceivedEvent(this));
                 if(lastTemperature == null || lastHumidity == null || !lastTemperature.equals(temperature) || !lastHumidity.equals(humidity)) {
                     getLanAdapter().fireEvent(new TemperatureChangedEvent(this, lastTemperature, lastHumidity, prevLastUpdate));
