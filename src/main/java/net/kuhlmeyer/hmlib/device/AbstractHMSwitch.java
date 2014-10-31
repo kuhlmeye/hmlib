@@ -2,7 +2,6 @@ package net.kuhlmeyer.hmlib.device;
 
 
 import net.kuhlmeyer.hmlib.HMLanAdapter;
-import net.kuhlmeyer.hmlib.event.HomematicEvent;
 import net.kuhlmeyer.hmlib.event.SwitchEvent;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
@@ -33,14 +32,14 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
 	private HMLanAdapter hmAdapter;
 
 	private int channel;
-    private State state = State.Unknown;
+    private SwitchState state = SwitchState.Unknown;
     
 	public void AbstractHMSwitch(String deviceId, String name, int channel, HMLanAdapter hmAdapter) {
 		setId(deviceId);
 		setName(name);
 		this.hmAdapter = hmAdapter;
 		this.channel = channel;
-        this.state = State.Unknown;
+        this.state = SwitchState.Unknown;
 	}
 	
 	public int getChannel() {
@@ -54,7 +53,7 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
 
     protected boolean sendCommand(String command) {
 
-        State oldState = getState();
+        SwitchState oldState = getState();
 
         hmAdapter.sendCommand(command);
 
@@ -73,30 +72,30 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
         return false;
     }
 
-    public State getState() {
+    public SwitchState getState() {
         return state;
     }
 
 
 
-    public State queryState() {
+    public SwitchState queryState() {
         if(sendCommand(String.format("A001%s%s%02X0E", hmAdapter.getStatus().getOwner(), getHmId(), channel))) {
             return getState();
         }
-        return State.Unknown;
+        return SwitchState.Unknown;
     }
 
-	public State switchOn() {
+	public SwitchState switchOn() {
         sendCommand(String.format("A011%s%s%s%02X%s%s%s", hmAdapter.getStatus().getOwner(), getHmId(), "02" /* command */, channel, "C8" /* value */, "00" /* ramp time */, "00" /* on time */));
         return getState();
     }
 	
-	public State switchOff() {
+	public SwitchState switchOff() {
         sendCommand(String.format("A011%s%s%s%02X%s%s%s", hmAdapter.getStatus().getOwner(), getHmId(), "02" /* command */, channel, "00" /* value */, "00" /* ramp time */, "00" /* on time */));
         return getState();
 	}
 
-    public State trigger() {
+    public SwitchState trigger() {
         if(getState() == null) {
             switchOff();
             return getState();
@@ -131,27 +130,27 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
         if(this.channel == Integer.parseInt(channelStr)) {
             if("0008".equals(msgState) || "0081".equals(msgState)) {
                 // Status - 1-ack,8=nack,21=?,02=? 81=open
-                state = State.Unknown;
+                state = SwitchState.Unknown;
                 return true;
             }
 
             LOG.debug(String.format("Event for '%s' received. State: %s, Payload: %s", getName(), msgState, payload));
 
-            State oldState = state;
+            SwitchState oldState = state;
             if("C8".equals(value)) {
-                state = State.On;
+                state = SwitchState.On;
                 if(oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s on.", getName()));
                     hmAdapter.fireEvent(new SwitchEvent(this));
                 }
             } else if("00".equals(value)) {
-                state = State.Off;
+                state = SwitchState.Off;
                 if(oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s off.", getName()));
                     hmAdapter.fireEvent(new SwitchEvent(this));
                 }
             } else {
-                state = State.Unknown;
+                state = SwitchState.Unknown;
             }            
 
             return true;
