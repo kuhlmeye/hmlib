@@ -1,6 +1,5 @@
 package net.kuhlmeyer.hmlib.device;
 
-import net.kuhlmeyer.hmlib.event.ButtonPressedEvent;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
@@ -37,7 +36,7 @@ public class HMPB4WM extends AbstractHMDevice {
 			if(pressedButton == channel) {
 				stateChangeDate = System.currentTimeMillis();
 				LOG.debug("Taste '" + pressedButton + "' an Schalter " + getName() + " gedrückt");
-                getLanAdapter().fireEvent(new ButtonPressedEvent(this, pressedButton));
+                getLanAdapter().notifyCallback((callback) -> callback.buttonPressed(this, pressedButton));
 			}
 		}		
 		return true;

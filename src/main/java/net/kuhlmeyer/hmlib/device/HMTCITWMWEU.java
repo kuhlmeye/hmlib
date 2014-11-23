@@ -1,7 +1,5 @@
 package net.kuhlmeyer.hmlib.device;
 
-import net.kuhlmeyer.hmlib.event.TemperatureChangedEvent;
-import net.kuhlmeyer.hmlib.event.TemperatureReceivedEvent;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
@@ -90,9 +88,10 @@ public class HMTCITWMWEU extends AbstractHMDevice {
                 this.humidity = humidity;
                 this.lastUpdate = new Date();
 
-                getLanAdapter().fireEvent(new TemperatureReceivedEvent(this));
+
+                getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataReceived(this));
                 if(lastTemperature == null || lastHumidity == null || !lastTemperature.equals(temperature) || !lastHumidity.equals(humidity)) {
-                    getLanAdapter().fireEvent(new TemperatureChangedEvent(this, lastTemperature, lastHumidity, prevLastUpdate));
+                    getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataChanged(this, lastTemperature, lastHumidity, prevLastUpdate));
                 }
             }
         }

@@ -2,8 +2,7 @@ package net.kuhlmeyer.hmlib;
 
 
 import net.kuhlmeyer.hmlib.device.AbstractHMDevice;
-import net.kuhlmeyer.hmlib.event.HomematicEvent;
-import net.kuhlmeyer.hmlib.event.HomematicEventListener;
+import net.kuhlmeyer.hmlib.event.HomematicEventCallback;
 import net.kuhlmeyer.hmlib.pojo.*;
 import org.apache.log4j.Logger;
 
@@ -11,6 +10,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.*;
+import java.util.function.Consumer;
 
 
 public class HMLanAdapter {
@@ -27,7 +27,7 @@ public class HMLanAdapter {
 	private Map<Integer, HMDeviceInfo> devInfoMap = new HashMap<Integer, HMDeviceInfo>();
     private String ip;
     private Integer port;
-    private AbstractCollection<HomematicEventListener> listeners = new ArrayList<>();
+    private AbstractCollection<HomematicEventCallback> listeners = new ArrayList<>();
 
     public void startInBackground(final String ip, final Integer port) throws SocketException, IOException {
 
@@ -363,15 +363,16 @@ public class HMLanAdapter {
         hmDevice.init(this);
 	}
 
-    public void addHomematicEventListener(HomematicEventListener listener) {
+    public void addHomematicEventListener(HomematicEventCallback listener) {
         listeners.add(listener);
     }
 
-    public void removeHomematicEventListener(HomematicEventListener listener) {
+    public void removeHomematicEventListener(HomematicEventCallback listener) {
         listeners.remove(listener);
     }
 
-    public void fireEvent(final HomematicEvent event) {
-       listeners.stream().forEach(listener -> listener.eventOcurred(event));
+    public void notifyCallback(final Consumer<HomematicEventCallback> callback) {
+        listeners.stream().forEach(callback);
     }
+
 }

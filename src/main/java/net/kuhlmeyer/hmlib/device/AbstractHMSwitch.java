@@ -2,7 +2,6 @@ package net.kuhlmeyer.hmlib.device;
 
 
 import net.kuhlmeyer.hmlib.HMLanAdapter;
-import net.kuhlmeyer.hmlib.event.SwitchEvent;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
@@ -141,13 +140,13 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
                 state = SwitchState.On;
                 if(oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s on.", getName()));
-                    hmAdapter.fireEvent(new SwitchEvent(this));
+                    getLanAdapter().notifyCallback((callback) -> callback.switchStateChanged(this));
                 }
             } else if("00".equals(value)) {
                 state = SwitchState.Off;
                 if(oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s off.", getName()));
-                    hmAdapter.fireEvent(new SwitchEvent(this));
+                    getLanAdapter().notifyCallback((callback) -> callback.switchStateChanged(this));
                 }
             } else {
                 state = SwitchState.Unknown;
