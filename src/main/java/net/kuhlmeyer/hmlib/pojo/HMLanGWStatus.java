@@ -21,30 +21,39 @@ public class HMLanGWStatus {
 	public String getSerialNumber() {
 		return serialNumber;
 	}
+
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
 	}
+
 	public String getVersion() {
 		return version;
 	}
+
 	public void setVersion(String version) {
 		this.version = version;
 	}
+
 	public String getUptime() {
 		return uptime;
 	}
+
 	public void setUptime(String uptime) {
 		this.uptime = uptime;
 	}
+
 	public String getUndefined1() {
 		return undefined1;
 	}
+
 	public void setUndefined1(String undefined1) {
 		this.undefined1 = undefined1;
 	}
+
 	public String getUndefined2() {
 		return undefined2;
 	}
+
 	public void setUndefined2(String undefined2) {
 		this.undefined2 = undefined2;
 	}
