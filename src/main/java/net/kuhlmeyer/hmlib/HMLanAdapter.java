@@ -164,7 +164,7 @@ public class HMLanAdapter {
         }
 	}
 
-	/**
+	/*
 	 * 
 	 * Request
 	 * SB6DCE581,00,00000000,01,B6DCE581,0D8401123ABC000000010A4c455130313238373731
@@ -208,7 +208,7 @@ public class HMLanAdapter {
 		return null;
 	}
 
-	/**
+	/*
 	 * $msg = sprintf("S%08X,00,00000000,01,%08X,%s", $tm, $tm, substr($msg, 4)); 
 	 * S5F09C51C,00,00000000,01,5F09C51C,73A011784FB11ABCD40201C80000
 	 * 5F09C51C => int(gettimeofday()*1000) % 0xffffffff;
@@ -262,7 +262,7 @@ public class HMLanAdapter {
 		writer.flush();
 	}
 
-	/**
+	/*
 	 * E(......),(....),(........),(..),(....),(.*)
 	 * E199C50,0000,0072E1AB,FF,FFB4,AF8440199C500000000146
 	 * 
@@ -293,7 +293,7 @@ public class HMLanAdapter {
 		return null;
 	}
 
-	/**
+	/*
 	 * R(........),(....),(........),(..),(....),(.*)
 	 * RD7F6D717,0001,01E8E801,FF,FFB3,02800216B341123ABC010100004B
 	 * <ol>
@@ -322,7 +322,7 @@ public class HMLanAdapter {
 		return null;
 	}
 
-	/**
+	/*
 	 * HHM-LAN-IF,03C1,IEQ0062049,139927,784FB1,003B9676,0000 | | | | | | +-
 	 * Undefined | | | | | +- uptime in msec | | | | +- owner | | | +- undefined
 	 * | | +- seriennummer | +- version +- init kennung
