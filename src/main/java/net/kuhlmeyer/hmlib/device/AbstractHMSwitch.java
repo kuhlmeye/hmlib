@@ -29,8 +29,11 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
     private static final Logger LOG = Logger.getLogger(AbstractHMSwitch.class);
 	private int channel;
     private SwitchState state = SwitchState.Unknown;
-    
-	public void AbstractHMSwitch(String deviceId, String name, int channel) {
+
+    public AbstractHMSwitch() {
+    }
+
+	public AbstractHMSwitch(String deviceId, String name, int channel) {
 		setId(deviceId);
 		setName(name);
 		this.channel = channel;
