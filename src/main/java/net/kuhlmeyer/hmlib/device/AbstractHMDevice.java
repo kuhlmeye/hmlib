@@ -12,6 +12,16 @@ public abstract class AbstractHMDevice {
 	private String name;
     private HMLanAdapter lanAdapter;
 
+    public AbstractHMDevice() {
+    }
+
+    public AbstractHMDevice(String id, String hmId, String hmCode, String name) {
+        this.id = id;
+        this.hmId = hmId;
+        this.hmCode = hmCode;
+        this.name = name;
+    }
+
 	
   	public String getId() {
 		return id;
