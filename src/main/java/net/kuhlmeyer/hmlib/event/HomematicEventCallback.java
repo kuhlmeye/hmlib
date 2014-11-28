@@ -11,22 +11,22 @@ import java.util.Date;
  */
 public interface HomematicEventCallback {
 
-    /**
+    /*
      * Called after a status change of a homematic switch
      */
     void switchStateChanged(AbstractHMSwitch aSwitch);
 
-    /**
+    /*
      * Called after a temperature or humidity change was detected.
      */
     void temperatureSensorDataChanged(HMTCITWMWEU temperatureSensor, Double lastTemperature, Double lastHumidity, Date prevLastUpdate);
 
-    /**
+    /*
      * Called after new data was received from a temperature sensor
      */
     void temperatureSensorDataReceived(HMTCITWMWEU temperatureSensor);
 
-    /**
+    /*
      * Called after a wallmount button was pressed
      */
     void buttonPressed(HMPB4WM button, int pressedButton);
