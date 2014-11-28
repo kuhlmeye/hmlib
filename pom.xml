@@ -1,6 +1,12 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
-	<name>HM Lib</name>
+    <groupId>net.kuhlmeyer</groupId>
+    <artifactId>hmlib</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>HM Lib</name>
+    <description>A java homematic library</description>
+    <url>http://github.com/kuhlmeye/hmlib</url>
 
 	<scm>
 		<connection>scm:git:git://github.com/kuhlmeye/hmlib.git</connection>
