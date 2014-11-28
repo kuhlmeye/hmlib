@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Date;
 
-/**
+/*
  * HM-TC-IT-WM-W-EU Temperature Sensor
  *
  *
