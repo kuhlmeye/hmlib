@@ -27,16 +27,12 @@ import org.apache.log4j.Logger;
 public abstract class AbstractHMSwitch extends AbstractHMDevice {
 
     private static final Logger LOG = Logger.getLogger(AbstractHMSwitch.class);
-	
-	private HMLanAdapter hmAdapter;
-
 	private int channel;
     private SwitchState state = SwitchState.Unknown;
     
-	public void AbstractHMSwitch(String deviceId, String name, int channel, HMLanAdapter hmAdapter) {
+	public void AbstractHMSwitch(String deviceId, String name, int channel) {
 		setId(deviceId);
 		setName(name);
-		this.hmAdapter = hmAdapter;
 		this.channel = channel;
         this.state = SwitchState.Unknown;
 	}
@@ -54,7 +50,7 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
 
         SwitchState oldState = getState();
 
-        hmAdapter.sendCommand(command);
+        getLanAdapter().sendCommand(command);
 
         for(int i = 0; i < 30; i++) {
             try {
@@ -78,19 +74,19 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
 
 
     public SwitchState queryState() {
-        if(sendCommand(String.format("A001%s%s%02X0E", hmAdapter.getStatus().getOwner(), getHmId(), channel))) {
+        if(sendCommand(String.format("A001%s%s%02X0E", getLanAdapter().getStatus().getOwner(), getHmId(), channel))) {
             return getState();
         }
         return SwitchState.Unknown;
     }
 
 	public SwitchState switchOn() {
-        sendCommand(String.format("A011%s%s%s%02X%s%s%s", hmAdapter.getStatus().getOwner(), getHmId(), "02" /* command */, channel, "C8" /* value */, "00" /* ramp time */, "00" /* on time */));
+        sendCommand(String.format("A011%s%s%s%02X%s%s%s", getLanAdapter().getStatus().getOwner(), getHmId(), "02" /* command */, channel, "C8" /* value */, "00" /* ramp time */, "00" /* on time */));
         return getState();
     }
 	
 	public SwitchState switchOff() {
-        sendCommand(String.format("A011%s%s%s%02X%s%s%s", hmAdapter.getStatus().getOwner(), getHmId(), "02" /* command */, channel, "00" /* value */, "00" /* ramp time */, "00" /* on time */));
+        sendCommand(String.format("A011%s%s%s%02X%s%s%s", getLanAdapter().getStatus().getOwner(), getHmId(), "02" /* command */, channel, "00" /* value */, "00" /* ramp time */, "00" /* on time */));
         return getState();
 	}
 
