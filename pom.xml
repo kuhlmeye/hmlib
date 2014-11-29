@@ -1,5 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <groupId>net.kuhlmeyer</groupId>
     <artifactId>hmlib</artifactId>
     <version>0.3-SNAPSHOT</version>
@@ -8,26 +9,26 @@
     <description>A java homematic library</description>
     <url>http://github.com/kuhlmeye/hmlib</url>
 
-	<scm>
-		<connection>scm:git:git://github.com/kuhlmeye/hmlib.git</connection>
-		<developerConnection>scm:git:git@github.com:kuhlmeye/hmlib.git</developerConnection>
-		<url>http://github.com/kuhlmeye/hmlib</url>
-	  <tag>hmlib-0.1</tag>
-  </scm>
+    <scm>
+        <connection>scm:git:git://github.com/kuhlmeye/hmlib.git</connection>
+        <developerConnection>scm:git:git@github.com:kuhlmeye/hmlib.git</developerConnection>
+        <url>http://github.com/kuhlmeye/hmlib</url>
+        <tag>hmlib-0.1</tag>
+    </scm>
 
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>sonatype-nexus-snapshots</id>
-			<name>Sonatype Nexus snapshot repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>sonatype-nexus-staging</id>
-			<name>Sonatype Nexus release repository</name>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus snapshot repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Nexus release repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <developers>
         <developer>
             <id>kuhlmeye</id>

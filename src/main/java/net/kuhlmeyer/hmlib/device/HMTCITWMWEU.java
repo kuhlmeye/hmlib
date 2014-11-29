@@ -90,7 +90,7 @@ public class HMTCITWMWEU extends AbstractHMDevice {
 
 
                 getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataReceived(this));
-                if(lastTemperature == null || lastHumidity == null || !lastTemperature.equals(temperature) || !lastHumidity.equals(humidity)) {
+                if (lastTemperature == null || lastHumidity == null || !lastTemperature.equals(temperature) || !lastHumidity.equals(humidity)) {
                     getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataChanged(this, lastTemperature, lastHumidity, prevLastUpdate));
                 }
             }

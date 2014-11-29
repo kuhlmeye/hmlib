@@ -2,15 +2,15 @@ package net.kuhlmeyer.hmlib.pojo;
 
 
 public class HMDeviceResponse {
-    
+
     private String source;
-    
-    
-	private String status;
-	private String uptime;
-	private String undefined;
-	private String rssi;
-	private String payload;
+
+
+    private String status;
+    private String uptime;
+    private String undefined;
+    private String rssi;
+    private String payload;
 
     public String getSource() {
         return source;
@@ -42,7 +42,7 @@ public class HMDeviceResponse {
 
     public void setUndefined(String undefined) {
         this.undefined = undefined;
-    }        
+    }
 
     public String getRssi() {
         return rssi;
