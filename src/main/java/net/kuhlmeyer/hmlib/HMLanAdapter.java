@@ -372,7 +372,7 @@ public class HMLanAdapter {
     }
 
     public void notifyCallback(final Consumer<HomematicEventCallback> callback) {
-        listeners.stream().forEach(callback);
+        listeners.parallelStream().forEach(callback);
     }
 
 }

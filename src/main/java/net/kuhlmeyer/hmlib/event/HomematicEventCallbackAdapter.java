@@ -9,25 +9,17 @@ import java.util.Date;
 /**
  * Contains the callback methods for the homematic events
  */
-public class HomematicEventCallbackAdapter {
+public class HomematicEventCallbackAdapter implements HomematicEventCallback {
 
-    /*
-     * Called after a status change of a homematic switch
-     */
-    void switchStateChanged(AbstractHMSwitch aSwitch) {}
+    @Override
+    public void switchStateChanged(AbstractHMSwitch aSwitch) {}
 
-    /*
-     * Called after a temperature or humidity change was detected.
-     */
-    void temperatureSensorDataChanged(HMTCITWMWEU temperatureSensor, Double lastTemperature, Double lastHumidity, Date prevLastUpdate) {}
+    @Override
+    public void temperatureSensorDataChanged(HMTCITWMWEU temperatureSensor, Double lastTemperature, Double lastHumidity, Date prevLastUpdate) {}
 
-    /*
-     * Called after new data was received from a temperature sensor
-     */
-    void temperatureSensorDataReceived(HMTCITWMWEU temperatureSensor) {}
+    @Override
+    public void temperatureSensorDataReceived(HMTCITWMWEU temperatureSensor) {}
 
-    /*
-     * Called after a wallmount button was pressed
-     */
-    void buttonPressed(HMPB4WM button, int pressedButton) {}
+    @Override
+    public void buttonPressed(HMPB4WM button, int pressedButton) {}
 }

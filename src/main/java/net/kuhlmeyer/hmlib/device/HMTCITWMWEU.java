@@ -28,6 +28,7 @@ public class HMTCITWMWEU extends AbstractHMDevice {
     private Double humidity;
     private Double temperature;
     private Date lastUpdate;
+    private Double selTemperature;
 
 
     public String getFormattedHumidity() {
@@ -60,6 +61,8 @@ public class HMTCITWMWEU extends AbstractHMDevice {
         return lastUpdate;
     }
 
+    public Double getSelectedTemperature() { return selTemperature; }
+
     @Override
     public boolean responseReceived(HMDeviceResponse data) {
         return true;
@@ -78,6 +81,7 @@ public class HMTCITWMWEU extends AbstractHMDevice {
                 double temperature = (sensorData & 0x3ff) / 10.0;
                 double humidity = Integer.valueOf(payload.substring(22), 16);
 
+
                 LOG.debug(String.format("Received temperature for %s: Selected: %f, Current: %f, Humidity: %f", getId(), selTemp, temperature, humidity));
 
                 Double lastTemperature = this.temperature;
@@ -87,6 +91,7 @@ public class HMTCITWMWEU extends AbstractHMDevice {
                 this.temperature = temperature;
                 this.humidity = humidity;
                 this.lastUpdate = new Date();
+                this.selTemperature = selTemp;
 
 
                 getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataReceived(this));
