@@ -1,8 +1,10 @@
-package net.kuhlmeyer.hmlib;
+package net.kuhlmeyer.hmlib.device;
 
 
-import net.kuhlmeyer.hmlib.device.AbstractHMDevice;
-import net.kuhlmeyer.hmlib.event.HomematicEventCallback;
+import net.kuhlmeyer.hmlib.HMDevice;
+import net.kuhlmeyer.hmlib.HMDeviceRegistry;
+import net.kuhlmeyer.hmlib.HMGateway;
+import net.kuhlmeyer.hmlib.event.HMEventCallback;
 import net.kuhlmeyer.hmlib.pojo.*;
 import org.apache.log4j.Logger;
 
@@ -13,7 +15,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 
-public class HMLanAdapter {
+public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
 
     private final static Logger LOG = Logger.getLogger(HMLanAdapter.class);
     private Socket hmSocket;
@@ -21,13 +23,11 @@ public class HMLanAdapter {
     private BufferedWriter writer;
     private HMLanGWStatus status;
 
-    private List<AbstractHMDevice> hmDevices = new ArrayList<AbstractHMDevice>();
     private int cmdCounter = 0;
 
     private Map<Integer, HMDeviceInfo> devInfoMap = new HashMap<Integer, HMDeviceInfo>();
     private String ip;
     private Integer port;
-    private AbstractCollection<HomematicEventCallback> listeners = new ArrayList<>();
 
     public void startInBackground(final String ip, final Integer port) throws SocketException, IOException {
 
@@ -96,7 +96,7 @@ public class HMLanAdapter {
                         LOG.debug("Event received: " + event);
 
                         boolean processed = false;
-                        for (AbstractHMDevice hmDevice : hmDevices) {
+                        for (HMDevice hmDevice : getHmDevices()) {
                             if (hmDevice.getHmId().equals(event.getSource())) {
                                 processed |= hmDevice.eventReceived(event);
                             }
@@ -133,7 +133,7 @@ public class HMLanAdapter {
                         LOG.debug("Response received: " + response);
 
                         boolean processed = false;
-                        for (AbstractHMDevice hmDevice : hmDevices) {
+                        for (HMDevice hmDevice : getHmDevices()) {
                             if (hmDevice.getHmId().equals(response.getSource())) {
                                 processed |= hmDevice.responseReceived(response);
                             }
@@ -164,6 +164,7 @@ public class HMLanAdapter {
         }
     }
 
+
     /*
      *
      * Request
@@ -177,6 +178,7 @@ public class HMLanAdapter {
      * L  E  Q  0  1  2  8  7  7  1
      * 4c 45 51 30 31 32 38 37 37 31
      */
+    @Override
     public HMDeviceInfo getDeviceInfo(String deviceId) {
 
         deviceId = deviceId.toUpperCase();
@@ -208,15 +210,30 @@ public class HMLanAdapter {
         return null;
     }
 
+    @Override
+    protected HMGateway getGateway() {
+        return this;
+    }
+
+    @Override
+    public String getGatewayId() {
+        return getStatus().getOwner();
+    }
+
+
+    public void notifyCallback(final Consumer<HMEventCallback> callback) {
+        getListeners().parallelStream().forEach(callback);
+    }
+
     /*
-     * $msg = sprintf("S%08X,00,00000000,01,%08X,%s", $tm, $tm, substr($msg, 4));
-     * S5F09C51C,00,00000000,01,5F09C51C,73A011784FB11ABCD40201C80000
-     * 5F09C51C => int(gettimeofday()*1000) % 0xffffffff;
-     *
-     * S5F085233,00,00000000,01,5F085233,71A011784FB11ABCD40201C80000
-     * SND L:0E N:71 CMD:A011 SRC:784FB1 DST:1ABCD4 0201C80000
-     * (SET CHANNEL:01 VALUE:C8 RAMPTIME:00 ONTIME:00)
-     */
+         * $msg = sprintf("S%08X,00,00000000,01,%08X,%s", $tm, $tm, substr($msg, 4));
+         * S5F09C51C,00,00000000,01,5F09C51C,73A011784FB11ABCD40201C80000
+         * 5F09C51C => int(gettimeofday()*1000) % 0xffffffff;
+         *
+         * S5F085233,00,00000000,01,5F085233,71A011784FB11ABCD40201C80000
+         * SND L:0E N:71 CMD:A011 SRC:784FB1 DST:1ABCD4 0201C80000
+         * (SET CHANNEL:01 VALUE:C8 RAMPTIME:00 ONTIME:00)
+         */
     public int sendCommand(String payload) {
 
         try {
@@ -357,22 +374,5 @@ public class HMLanAdapter {
     // Pair Message E1FD2B9,0000,148A8865,FF,FFAC,0884001FD2B90000001C00094B45513032353432353510020100 for 1FD2B9
     //              E1FD2CA,0000,1492221C,FF,FFAD,0484001FD2CA0000001C00094B45513032353432343010020100 for 1FD2CA
     //              R7C085F96,0001,149A5DB0,FF,FFBC,058002234768123ABC00 for KEQ0706612
-
-    public void registerHMDevice(AbstractHMDevice hmDevice) {
-        hmDevices.add(hmDevice);
-        hmDevice.init(this);
-    }
-
-    public void addHomematicEventListener(HomematicEventCallback listener) {
-        listeners.add(listener);
-    }
-
-    public void removeHomematicEventListener(HomematicEventCallback listener) {
-        listeners.remove(listener);
-    }
-
-    public void notifyCallback(final Consumer<HomematicEventCallback> callback) {
-        listeners.parallelStream().forEach(callback);
-    }
 
 }

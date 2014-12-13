@@ -1,4 +1,10 @@
 package net.kuhlmeyer.hmlib.device;
 
-public class HMLCSW2FM extends AbstractHMSwitch {
+import net.kuhlmeyer.hmlib.HMSwitch;
+
+public class HMLCSW2FM extends HMSwitch {
+
+    public HMLCSW2FM(String hmId, String hmCode, String name, int channel) {
+        super(hmId, hmCode, name, channel);
+    }
 }

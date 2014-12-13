@@ -1,6 +1,7 @@
-package net.kuhlmeyer.hmlib.device;
+package net.kuhlmeyer.hmlib;
 
 
+import net.kuhlmeyer.hmlib.device.SwitchState;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
@@ -23,18 +24,14 @@ import org.apache.log4j.Logger;
  *
  *  00800216B341123ABC0101C8004C
  */
-public abstract class AbstractHMSwitch extends AbstractHMDevice {
+public abstract class HMSwitch extends HMDevice {
 
-    private static final Logger LOG = Logger.getLogger(AbstractHMSwitch.class);
-    private int channel;
+    private static final Logger LOG = Logger.getLogger(HMSwitch.class);
+    private final int channel;
     private SwitchState state = SwitchState.Unknown;
 
-    public AbstractHMSwitch() {
-    }
-
-    public AbstractHMSwitch(String deviceId, String name, int channel) {
-        setId(deviceId);
-        setName(name);
+    public HMSwitch(String hmId, String hmCode, String name, int channel) {
+        super(hmId, hmCode, name);
         this.channel = channel;
         this.state = SwitchState.Unknown;
     }
@@ -43,16 +40,11 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
         return channel;
     }
 
-    public void setChannel(int channel) {
-        this.channel = channel;
-    }
-
-
     protected boolean sendCommand(String command) {
 
         SwitchState oldState = getState();
 
-        getLanAdapter().sendCommand(command);
+        getHMGateway().sendCommand(command);
 
         for (int i = 0; i < 30; i++) {
             try {
@@ -75,19 +67,19 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
 
 
     public SwitchState queryState() {
-        if (sendCommand(String.format("A001%s%s%02X0E", getLanAdapter().getStatus().getOwner(), getHmId(), channel))) {
+        if (sendCommand(String.format("A001%s%s%02X0E", getHMGateway().getGatewayId(), getHmId(), channel))) {
             return getState();
         }
         return SwitchState.Unknown;
     }
 
     public SwitchState switchOn() {
-        sendCommand(String.format("A011%s%s%s%02X%s%s%s", getLanAdapter().getStatus().getOwner(), getHmId(), "02" /* command */, channel, "C8" /* value */, "00" /* ramp time */, "00" /* on time */));
+        sendCommand(String.format("A011%s%s%s%02X%s%s%s", getHMGateway().getGatewayId(), getHmId(), "02" /* command */, channel, "C8" /* value */, "00" /* ramp time */, "00" /* on time */));
         return getState();
     }
 
     public SwitchState switchOff() {
-        sendCommand(String.format("A011%s%s%s%02X%s%s%s", getLanAdapter().getStatus().getOwner(), getHmId(), "02" /* command */, channel, "00" /* value */, "00" /* ramp time */, "00" /* on time */));
+        sendCommand(String.format("A011%s%s%s%02X%s%s%s", getHMGateway().getGatewayId(), getHmId(), "02" /* command */, channel, "00" /* value */, "00" /* ramp time */, "00" /* on time */));
         return getState();
     }
 
@@ -137,13 +129,13 @@ public abstract class AbstractHMSwitch extends AbstractHMDevice {
                 state = SwitchState.On;
                 if (oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s on.", getName()));
-                    getLanAdapter().notifyCallback((callback) -> callback.switchStateChanged(this));
+                    getHMGateway().notifyCallback((callback) -> callback.switchStateChanged(this));
                 }
             } else if ("00".equals(value)) {
                 state = SwitchState.Off;
                 if (oldState == null || !oldState.equals(state)) {
                     LOG.debug(String.format("%s off.", getName()));
-                    getLanAdapter().notifyCallback((callback) -> callback.switchStateChanged(this));
+                    getHMGateway().notifyCallback((callback) -> callback.switchStateChanged(this));
                 }
             } else {
                 state = SwitchState.Unknown;

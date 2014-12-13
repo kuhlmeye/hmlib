@@ -1,5 +1,6 @@
 package net.kuhlmeyer.hmlib.device;
 
+import net.kuhlmeyer.hmlib.HMDevice;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 import org.apache.log4j.Logger;
@@ -21,7 +22,7 @@ import java.util.Date;
  *
  * @author christof
  */
-public class HMTCITWMWEU extends AbstractHMDevice {
+public class HMTCITWMWEU extends HMDevice {
 
     private static final Logger LOG = Logger.getLogger(HMTCITWMWEU.class);
 
@@ -30,6 +31,9 @@ public class HMTCITWMWEU extends AbstractHMDevice {
     private Date lastUpdate;
     private Double selTemperature;
 
+    public HMTCITWMWEU(String hmId, String hmCode, String name) {
+        super(hmId, hmCode, name);
+    }
 
     public String getFormattedHumidity() {
         Double humidity = getHumidity();
@@ -81,8 +85,7 @@ public class HMTCITWMWEU extends AbstractHMDevice {
                 double temperature = (sensorData & 0x3ff) / 10.0;
                 double humidity = Integer.valueOf(payload.substring(22), 16);
 
-
-                LOG.debug(String.format("Received temperature for %s: Selected: %f, Current: %f, Humidity: %f", getId(), selTemp, temperature, humidity));
+                LOG.debug(String.format("Received temperature for %s: Selected: %f, Current: %f, Humidity: %f", getName(), selTemp, temperature, humidity));
 
                 Double lastTemperature = this.temperature;
                 Double lastHumidity = this.humidity;
@@ -94,9 +97,9 @@ public class HMTCITWMWEU extends AbstractHMDevice {
                 this.selTemperature = selTemp;
 
 
-                getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataReceived(this));
+                getHMGateway().notifyCallback((callback) -> callback.temperatureSensorDataReceived(this));
                 if (lastTemperature == null || lastHumidity == null || !lastTemperature.equals(temperature) || !lastHumidity.equals(humidity)) {
-                    getLanAdapter().notifyCallback((callback) -> callback.temperatureSensorDataChanged(this, lastTemperature, lastHumidity, prevLastUpdate));
+                    getHMGateway().notifyCallback((callback) -> callback.temperatureSensorDataChanged(this, lastTemperature, lastHumidity, prevLastUpdate));
                 }
             }
         }

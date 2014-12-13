@@ -1,6 +1,6 @@
 package net.kuhlmeyer.hmlib.event;
 
-import net.kuhlmeyer.hmlib.device.AbstractHMSwitch;
+import net.kuhlmeyer.hmlib.HMSwitch;
 import net.kuhlmeyer.hmlib.device.HMPB4WM;
 import net.kuhlmeyer.hmlib.device.HMTCITWMWEU;
 
@@ -9,12 +9,12 @@ import java.util.Date;
 /**
  * Contains the callback methods for the homematic events
  */
-public interface HomematicEventCallback {
+public interface HMEventCallback {
 
     /*
      * Called after a status change of a homematic switch
      */
-    void switchStateChanged(AbstractHMSwitch aSwitch);
+    void switchStateChanged(HMSwitch aSwitch);
 
     /*
      * Called after a temperature or humidity change was detected.
