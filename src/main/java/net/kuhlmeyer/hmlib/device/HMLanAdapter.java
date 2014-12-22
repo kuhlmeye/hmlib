@@ -88,6 +88,11 @@ public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
                 while (true) {
                     String line = reader.readLine();
                     LOG.trace("Received Line: " + line);
+                    if(line == null || line.isEmpty()) {
+                        LOG.warn(String.format("Received strange empty event line from adapter.. %s", line));
+                        continue;
+                    }
+
                     if (line.startsWith("H")) {
                         status = parseHMLanGWStatus(line);
                         LOG.trace("Status received: " + status);
