@@ -8,7 +8,7 @@ public abstract class HMDevice {
     private final String hmId;
     private final String hmCode;
     private final String name;
-    private HMGateway hmGateway;
+    private transient HMGateway hmGateway;
 
     public HMDevice(String hmId, String hmCode, String name) {
         this.hmId = hmId;
