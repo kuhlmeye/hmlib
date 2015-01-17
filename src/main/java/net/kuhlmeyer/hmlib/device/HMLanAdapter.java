@@ -28,10 +28,11 @@ public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
     private Map<Integer, HMDeviceInfo> devInfoMap = new HashMap<Integer, HMDeviceInfo>();
     private String ip;
     private Integer port;
+    private String hmId;
 
-    public void startInBackground(final String ip, final Integer port) throws SocketException, IOException {
+    public void startInBackground(final String ip, final Integer port, final String hmId) throws SocketException, IOException {
 
-        new Thread(() -> startHomematicAdapter(ip, port), "HM-Adapter").start();
+        new Thread(() -> startHomematicAdapter(ip, port, hmId), "HM-Adapter").start();
 
         new Timer("HM-AliveTimer").scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -54,14 +55,14 @@ public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
     }
 
     private void openPort() throws IOException {
-        LOG.debug("Opening port: " + ip + ":" + port);
+        LOG.debug("Opening port: " + ip + ":" + port + " with hmId: " + hmId);
 
         hmSocket = new Socket(ip, port);
 
         reader = new BufferedReader(new InputStreamReader(hmSocket.getInputStream()));
         writer = new BufferedWriter(new OutputStreamWriter(hmSocket.getOutputStream()));
 
-        writer.write("A123ABC\n");
+        writer.write(hmId + "\n");
     }
 
     private void closePort() throws IOException {
@@ -71,9 +72,10 @@ public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
         }
     }
 
-    private void startHomematicAdapter(String ip, Integer port) {
+    private void startHomematicAdapter(String ip, Integer port, String hmId) {
         this.ip = ip;
         this.port = port;
+        this.hmId = hmId;
         while (true) {
             try {
 
