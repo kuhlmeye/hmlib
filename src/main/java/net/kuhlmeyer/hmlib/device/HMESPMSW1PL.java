@@ -44,7 +44,7 @@ public class HMESPMSW1PL extends HMSwitch {
         final String payload = data.getPayload();
 
         // Seems to be Channel 1 Handling - Set ON/OFF
-        if (24 == payload.length()) {
+        if (26 == payload.length()) {
             //12A4102C8A2A29A4E80601 00 00  - 00 set OFF
             //14A4102C8A2A29A4E80601 C8 00  - C8 set ON
             return super.eventReceived(data);
