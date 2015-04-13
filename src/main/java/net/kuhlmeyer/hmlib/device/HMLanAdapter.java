@@ -358,8 +358,7 @@ public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
         if (line.startsWith("HHM-LAN-IF")) {
 
             String[] statusArr = line.split(",");
-            // @Christof: Bist Du sicher, dass die Länge 7 ist? Bei mir war es heute 8...
-            //if (statusArr.length == 7) {
+            if (statusArr.length >= 7) {
                 HMLanGWStatus result = new HMLanGWStatus();
                 result.setVersion(statusArr[1]);
                 result.setSerialNumber(statusArr[2]);
@@ -367,7 +366,7 @@ public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
                 result.setOwner(statusArr[4]);
                 result.setUptime(parseUptime(statusArr[5]));
                 return result;
-            //}
+            }
         }
 
         return null;
