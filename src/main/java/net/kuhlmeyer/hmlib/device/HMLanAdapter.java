@@ -18,6 +18,8 @@ import java.util.TimerTask;
 import java.util.function.Consumer;
 
 
+
+
 public class HMLanAdapter extends HMDeviceRegistry implements HMGateway {
 
     private final static Logger LOG = Logger.getLogger(HMLanAdapter.class);
