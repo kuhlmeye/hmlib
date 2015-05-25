@@ -30,7 +30,7 @@ public abstract class HMDeviceRegistry {
      */
     public abstract HMDeviceInfo getDeviceInfo(String deviceId);
 
-    public void registerHMDevice(HMDevice hmDevice) {
+    public void registerHMDevice(AbstractHMDevice hmDevice) {
         hmDevices.add(hmDevice);
         hmDevice.init(getGateway());
     }

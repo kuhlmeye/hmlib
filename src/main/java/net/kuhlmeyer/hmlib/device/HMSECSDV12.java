@@ -1,5 +1,6 @@
 package net.kuhlmeyer.hmlib.device;
 
+import net.kuhlmeyer.hmlib.AbstractHMDevice;
 import net.kuhlmeyer.hmlib.HMDevice;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
@@ -11,7 +12,7 @@ import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
  *   -A1 84 00 234768 000000 1000424B455130373036363132CD000100
  *   -A2 84 00 234768 000000 1000424B455130373036363132CD000100
  */
-public class HMSECSDV12 extends HMDevice {
+public class HMSECSDV12 extends AbstractHMDevice {
 
     boolean detected = false;
 

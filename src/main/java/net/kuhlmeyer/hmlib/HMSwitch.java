@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  *
  *  00800216B341123ABC0101C8004C
  */
-public abstract class HMSwitch extends HMDevice {
+public abstract class HMSwitch extends AbstractHMDevice {
 
     private static final Logger LOG = Logger.getLogger(HMSwitch.class);
     private final int channel;

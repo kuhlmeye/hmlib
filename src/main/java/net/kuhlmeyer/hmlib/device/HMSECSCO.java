@@ -1,5 +1,6 @@
 package net.kuhlmeyer.hmlib.device;
 
+import net.kuhlmeyer.hmlib.AbstractHMDevice;
 import net.kuhlmeyer.hmlib.HMDevice;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
@@ -16,7 +17,7 @@ import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
  *  -16 86 41 30B821 0000000 115C8
  *  -17 86 41 30B821 0000000 11600
  */
-public class HMSECSCO extends HMDevice {
+public class HMSECSCO extends AbstractHMDevice {
 
 
     public HMSECSCO(String hmId, String hmCode, String name) {

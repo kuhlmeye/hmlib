@@ -1,5 +1,6 @@
 package net.kuhlmeyer.hmlib.event;
 
+import net.kuhlmeyer.hmlib.HMButton;
 import net.kuhlmeyer.hmlib.HMSwitch;
 import net.kuhlmeyer.hmlib.device.*;
 
@@ -20,7 +21,7 @@ public class HMEventCallbackAdapter implements HMEventCallback {
     public void temperatureSensorDataReceived(HMTCITWMWEU temperatureSensor) {}
 
     @Override
-    public void buttonPressed(HMPB4WM button, int pressedButton) {}
+    public void buttonPressed(HMButton button, int pressedButton) {}
 
     @Override
     public void motionDetected(HMSECMDIR2 motionDetector) {}

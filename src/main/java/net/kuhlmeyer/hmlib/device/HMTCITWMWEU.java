@@ -1,5 +1,6 @@
 package net.kuhlmeyer.hmlib.device;
 
+import net.kuhlmeyer.hmlib.AbstractHMDevice;
 import net.kuhlmeyer.hmlib.HMDevice;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
@@ -22,7 +23,7 @@ import java.util.Date;
  *
  * @author christof
  */
-public class HMTCITWMWEU extends HMDevice {
+public class HMTCITWMWEU extends AbstractHMDevice {
 
     private static final Logger LOG = Logger.getLogger(HMTCITWMWEU.class);
 

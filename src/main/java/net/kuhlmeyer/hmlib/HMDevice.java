@@ -3,40 +3,20 @@ package net.kuhlmeyer.hmlib;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceNotification;
 import net.kuhlmeyer.hmlib.pojo.HMDeviceResponse;
 
-public abstract class HMDevice {
+/**
+ * Created by christof on 25.05.15.
+ */
+public interface HMDevice {
 
-    private final String hmId;
-    private final String hmCode;
-    private final String name;
-    private transient HMGateway hmGateway;
+    String getHmId();
 
-    public HMDevice(String hmId, String hmCode, String name) {
-        this.hmId = hmId;
-        this.hmCode = hmCode;
-        this.name = name;
-    }
+    String getHmCode();
 
-    public String getHmId() {
-        return hmId;
-    }
+    String getName();
 
-    public String getHmCode() {
-        return hmCode;
-    }
+    boolean responseReceived(HMDeviceResponse data);
 
-    public String getName() {
-        return name;
-    }
+    boolean eventReceived(HMDeviceNotification data);
 
-    public abstract boolean responseReceived(HMDeviceResponse data);
-
-    public abstract boolean eventReceived(HMDeviceNotification data);
-
-    protected void init(HMGateway hmGateway) {
-        this.hmGateway = hmGateway;
-    }
-
-    public HMGateway getHMGateway() {
-        return hmGateway;
-    }
+    HMGateway getHMGateway();
 }
